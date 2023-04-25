@@ -39,17 +39,31 @@ useEffect(()=>
     AdApi(formValues)
     .then((res)=>
     {
-    if(res.data === 'Valid credendtials')
+
+    if(res.data.message === 'Valid credendtials')
     {
       alert("valid credentials")
-      navigate('/Ladmin')
-      console.log(res)
+    if (res.headers.get('Authorization')) {
+      const token = res.headers.get('Authorization');
+      const expirationTime = Date.now() + 15 * 1000; // 1 hour in milliseconds
+      localStorage.setItem('token', JSON.stringify({ token, expirationTime }));
+    }
+    if (localStorage.getItem('token')) {
+      const { token, expirationTime } = JSON.parse(localStorage.getItem('token'));
+      if (Date.now() < expirationTime) {
+        navigate('/Ladmin');
+      } else {
+        localStorage.removeItem('token');
+      }
+    }
     }
     else
     {
       alert("invalid credentials")
     }
-    })
+  }
+  
+  )
     .catch(e=>console.log(e))
     }
 },[formErrors])

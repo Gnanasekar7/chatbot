@@ -59,13 +59,6 @@ useEffect(()=>{
     }
 },[formErrors])  
 
-// useEffect(()=>{
-// fetch(`http://127.0.0.1:5000/login`)
-// .then(res=>res.json())
-// .then(data=>console.log(data))
-// .catch((e)=>{console.log(e)})
-// },[])
-
   return (
     <div className="App">
       <div className='form' method="post" onSubmit={handleSubmit}>
@@ -92,7 +85,7 @@ useEffect(()=>{
                         <input type='password' placeholder='Confirm Password' name="cpass" value={formValues.cpass} onChange={handleChange}></input>
                         <br/>
                         <p>{formErrors.cpass}</p>
-                        <input type='submit' value='post'  /*onClick={() => window.location.reload(false)}*/></input>
+                        <input type='submit' value='Register'  /*onClick={() => window.location.reload(false)}*/></input>
                      </form>
                   </div>
                 </div>

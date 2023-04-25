@@ -1,7 +1,6 @@
 import React,{useEffect,useState} from 'react'
 import { LogApi } from '../services/LogApi'
-// import { decode } from 'msgpack';
-// import { BSON } from 'bson';
+
 import { useNavigate } from 'react-router-dom'
 function Log() {
 
@@ -10,7 +9,6 @@ function Log() {
     const[formValues,setFormValues]=useState(initialValues) 
     const[formErrors,setFormErrors]=useState({})
     const[hasError,setHasError]=useState(false)
-
     const handleChange=(e)=>
   {      
     const {name,value}=e.target
@@ -33,33 +31,35 @@ const handleSubmit=(e)=>{
   setFormErrors(validate(formValues))
   setHasError(true)
 }
-  // useEffect(()=>{
-  //   fetch(`http://127.0.0.1:5000/check`)
-  //   .then(res=>console.log(res.json()))
-  //   .catch((e)=>{console.log(e)})  
-  //   },[])
   
-    // useEffect(() => {
-    //   async function getUserList() {
-    //     const response = await fetch('http://127.0.0.1:5000/check');
-    //     const data = await response.json();
-    //     console.log(data)
-    //   }
-    //   getUserList();
-    // }, []);
     useEffect(()=>{
       if(Object.keys(formErrors).length === 0 && hasError){
       LogApi(formValues)
-      .then((res)=>{if(res.data === 'Valid credendtials'){
-        alert("valid credentials")
-        navigate('/Luser')}
-        else{
-          alert("invalid credentials")
+      .then((res)=>
+      {
+       
+        console.log(res.headers.get('Authorization'))
+       
+        if (res.headers.get('Authorization')) {
+          const token = res.headers.get('Authorization');
+          const expirationTime = Date.now() + 15 * 1000; // 1 hour in milliseconds
+          localStorage.setItem('token', JSON.stringify({ token, expirationTime }));
         }
-      })
+        if (localStorage.getItem('token')) {
+          const { token, expirationTime } = JSON.parse(localStorage.getItem('token'));
+          if (Date.now() < expirationTime) {
+            navigate('/Luser');
+          } else {
+            localStorage.removeItem('token');
+          }
+        }
+      }
+      
+      )
       .catch(e=>console.log(e))
     }
   },[formErrors])
+
   return (
     <div>
         <form className='form' method="post" onSubmit={handleSubmit}>
