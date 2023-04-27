@@ -5,7 +5,8 @@ from flask_jwt_extended import JWTManager
 
 app=Flask(__name__)
 # CORS(app)
-CORS(app, supports_credentials=True)
+# CORS(app, supports_credentials=True)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 jwt = JWTManager(app)
 app.config['SECRET_KEY']='1234567'
 # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta (seconds=10)

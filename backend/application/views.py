@@ -1,66 +1,115 @@
 
+# import jwt
+# import bcrypt
+# from flask_bcrypt import Bcrypt
+# from application import app
+# from flask import Response,request,make_response,jsonify
+# from datetime import datetime,timedelta
+# from flask_pymongo import PyMongo
+# from functools import wraps
+# from flask_jwt_extended import jwt_required,create_access_token
+
+# mongo_reg=PyMongo(app,uri='mongodb://localhost:27017/test')
+# db= mongo_reg.db
+
+# bcrypt = Bcrypt()
+
+
+
+
+# @app.route('/login',methods=['POST','GET'])
+# def login():   
+#   if request.method=='POST':
+#     data = request.get_json()
+#     fname = data["Firstname"]
+#     lname = data["Lastname"]
+#     email = data["Email"]
+#     passw = bcrypt.generate_password_hash(data["Passw"].encode('utf-8'))
+#     # cpass=data["Cpass"]
+#     user = {"fname": fname, "lname": lname, "email": email, "Password": passw}
+#     print(user)
+#     db.data.insert_one(user)
+#     return {"message": "User registered successfully"}
+
+
+
 import jwt
 import bcrypt
 from flask_bcrypt import Bcrypt
 from application import app
-from flask import Response,request,make_response,jsonify
-from datetime import datetime,timedelta
+from flask import Response, request, make_response, jsonify
+from datetime import datetime, timedelta
 from flask_pymongo import PyMongo
 from functools import wraps
-from flask_jwt_extended import jwt_required,create_access_token
-# from pymongo import MongoClient
-# from werkzeug.security import check_password_hash
-mongo_reg=PyMongo(app,uri='mongodb://localhost:27017/test')
-db= mongo_reg.db
-# client = MongoClient('mongodb://localhost:27017/test')
-# db = client['mydatabase']
-# class CustomEncoder(json.JSONEncoder):
-#     def default(self, o):
-#         if isinstance(o, user_info):
-#             return {'attribute1': o.attribute1, 'attribute2': o.attribute2}
-#         return super().default(o)
+from flask_jwt_extended import jwt_required, create_access_token
+from marshmallow import Schema, fields, validate, ValidationError
+
+mongo_reg = PyMongo(app, uri='mongodb://localhost:27017/test')
+db = mongo_reg.db
 bcrypt = Bcrypt()
 
 
+# Define a schema for the User model
+class UserSchema(Schema):
+    Firstname = fields.Str(required=True)
+    Lastname = fields.Str(required=True)
+    Email = fields.Email(required=True)
+    Passw = fields.Str(required=True, validate=validate.Length(min=8, max=15))
+    Cpass = fields.Str(required=True, validate=validate.Length(min=8, max=15))
 
 
-@app.route('/login',methods=['POST','GET'])
-def login():   
-  if request.method=='POST':
-    # fn=request.form.get("Firstname")
-    # ln=request.form.get("lname")
-    # e=request.form.get("email")
-    # p=request.form.get("pno")
-        
-    # print(fn)
-    # db.userinfo.insert_many([{
-    #     'fname':fn,'lname':ln,'email':e,'phone':p
-    # }])
-#     print(data)
-    # data = request.json
-    # print(data)
-    # collection = db['users']
-    # collection.insert_one(data)
-    # return jsonify({'message': 'User registered successfully'})  
-    data = request.get_json()
-    fname = data["Firstname"]
-    lname = data["Lastname"]
-    email = data["Email"]
-    passw = bcrypt.generate_password_hash(data["Passw"].encode('utf-8'))
-    # cpass=data["Cpass"]
-    user = {"fname": fname, "lname": lname, "email": email, "Password": passw}
-    print(user)
-    db.data.insert_one(user)
-    return {"message": "User registered successfully"}
-    # return {
-    #     'message':'hello'
-    # }
-# @app.route('/check',methods=['POST','GET'])
-# def check():
-#   user_info = list(db.data.find())
-#   user_info_json = json.dumps(user_info, default=str)
-#   return Response(user_info_json, mimetype='application/json')
-@app.route('/check',methods=['POST','GET'])
+# Create an instance of the User schema
+user_schema = UserSchema()
+
+
+@app.route('/Register', methods=['POST'])
+def register():
+    try:
+        # Validate the input data against the User schema
+        f=request.get_json()
+        # print(f)
+        # print(user_schema.load(request.get_json()))
+        data = user_schema.load(request.get_json())
+        print(data)
+        # Check if the email is already registered
+        if db.users.find_one({'email': data['Email']}):
+            return {'message': 'Email already registered'}
+
+        # Check if the passwords match
+        if data['Passw'] != data['Cpass']:
+            return {'message': 'Passwords do not match'}
+
+        # Hash the password
+        hashed_password = bcrypt.generate_password_hash(data['Passw'].encode('utf-8'))
+
+        # Save the user to the database
+        user = {
+            'firstname': data['Firstname'],
+            'lastname': data['Lastname'],
+            'email': data['Email'],
+            'password': hashed_password
+        }
+        db.users.insert_one(user)
+
+        # Return a success message
+        # response = jsonify({'message': 'Login successful'},'ok')
+        # response.headers['Authorization'] = f'Bearer {token}'
+        # response.headers.add('Access-Control-Allow-Origin', '  *')
+        # response.headers.add('Access-Control-Allow-Headers', 'Authorization')
+        # response.headers.add('Access-Control-Allow-Methods', '*')
+        # response.headers.add('Access-Control-Check', 'ok')
+        # response.headers.add('HTTP status', 'ok')
+        # print(response)
+        # return response,200
+        return {'message': 'User registered successfully'}
+
+
+    except ValidationError as error:
+        # Return an error message if the input data does not match the schema
+        return {'message': error.messages}, 400
+
+
+@app.route('/login', methods=['POST'])
 
 def check():
   if request.method=='POST':
@@ -86,7 +135,6 @@ def check():
       response = jsonify({'message': 'Login successful'})
       response.headers['Authorization'] = f'Bearer {token}'
       response.headers.add('Access-Control-Allow-Origin', '  *')
-      response.headers.add('Access-Control-Allow-Headers', 'Authorization')
       print(response)
       return response
     else:
@@ -98,7 +146,7 @@ def admincheck():
     data = request.get_json()
     email = data["Email"]
     passw=data["Password"]
-    user ={"email":email,"password":passw}
+    # user ={"email":email,"password":passw}
     # print(user)
     user1 = db.admin.find_one({'email': email})
     # print(user1)

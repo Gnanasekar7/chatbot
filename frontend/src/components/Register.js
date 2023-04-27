@@ -52,6 +52,9 @@ useEffect(()=>{
               navigate('/Luser')
           console.log(response)
         }
+        else{
+          alert("enter credentials as per norms  ")
+        }
       }               
     ).catch((err)=>{
           console.log(err)

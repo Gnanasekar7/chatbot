@@ -1,6 +1,6 @@
 import axios from "axios"
 axios.defaults.baseURL="http://127.0.0.1:5000"
-const Register_Url="/login"
+const Register_Url="/Register"
 
 export const RegisterApi=(formValues)=>{
     let data={Firstname:formValues.fname,Lastname:formValues.lname,Email:formValues.email,Passw:formValues.pass,Cpass:formValues.cpass}

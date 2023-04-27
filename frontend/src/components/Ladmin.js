@@ -126,7 +126,7 @@ function Ladmin() {
   
   const addInitialQuestion = () => {
     if (initialQuestions.length < 4) {
-      setInitialQuestions([...initialQuestions, {question: '', followUpQuestions:{follow:[],sub:[]}}]);
+      setInitialQuestions([...initialQuestions, {question: '', followUpQuestions:{follow:[{sub:[]}]/*,  follow:[],sub:[]*/}}]);
     }
   };
   
@@ -172,11 +172,11 @@ function Ladmin() {
            <label>Follow {index + 1}</label>
             <input type="text" value={sub} onChange={(e) => updateSubQues(initialIndex, index, e.target.value)} />
             {/* <button onClick={() => addSubQues(index)}>Add </button> */}
-                  {/* {console.log("Add follow up",initialIndex,index)} */}
+                  {console.log("Add follow up",initialIndex,index,followUpIndex)}
 
           </div>
         ))
-      )
+      )   
     }
   
   const renderFollowUpQuestions = (initialIndex) => {
@@ -189,7 +189,7 @@ function Ladmin() {
           {
             rendersub(initialIndex,index)
           }
-          {console.log("Add follow up",initialIndex,index)}
+          {/* {console.log("Add follow up",initialIndex,index)} */}
         </div>
       ))
     );
