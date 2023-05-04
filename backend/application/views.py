@@ -37,7 +37,7 @@ import jwt
 import bcrypt
 from flask_bcrypt import Bcrypt
 from application import app
-from flask import Response, request, make_response, jsonify
+from flask import Response, request, make_response, jsonify,json
 from datetime import datetime, timedelta
 from flask_pymongo import PyMongo
 from functools import wraps
@@ -129,12 +129,12 @@ def check():
       # return jsonify({'token':token}) 
       # additional= {"pass":user1['Password']}
       token=create_access_token(identity=user1['email'], expires_delta=timedelta(seconds=10))
-      print(token)
+      # print(token)
       # return jsonify(access_token=token)
       # return Response.access_control_allow_headers('*')
       response = jsonify({'message': 'Login successful'})
       response.headers['Authorization'] = f'Bearer {token}'
-      response.headers.add('Access-Control-Allow-Origin', '  *')
+      response.headers.add('Access-Control-Allow-Origin', '*')
       print(response)
       return response
     else:
@@ -170,11 +170,32 @@ def admincheck():
 def protecteduser():
      auth_header = request.headers.get('Authorization')
      if auth_header:
-      return jsonify({'message': 'Token is valid'})
+      return jsonify({'message': 'userToken is valid'})
 @app.route('/protected-admin',methods=['POST','GET'])
 def protectedadmin():
      auth_header = request.headers.get('Authorization')
      if auth_header:
       return jsonify({'message': 'Token is valid'})
+@app.route('/Adminstore',methods=['POST','GET'])
+def store():
+  # if request.method=='POST':
+    data = request.get_json()
+    print(data)
+    doc_dict = {"documents": data}
+    response = jsonify({'message': 'Valid credendtials'})
+    response.headers.add('Access-Control-Allow-Origin', '  *')
+    response.headers.add('Access-Control-Allow-Headers',  '*')
+    print(response)
+    db.Question.insert_one(doc_dict)
 
+    return response
+
+    # return data
+@app.route('/userreq',methods=['POST','GET'])
+def get_collection():
+    data = {}
+    for doc in db.Question.find({'_id': False,'documents':True}):
+        data.append(doc.documents[0])
+    print(data)
+    return jsonify({'data': data})
 

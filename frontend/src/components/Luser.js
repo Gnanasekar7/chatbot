@@ -16,6 +16,13 @@ function Luser() {
     .catch(error => {
       console.error(error);
     })
+    axios.get("http://127.0.0.1:5000/userreq")
+    .then(res=>{
+      console.log(res)
+    })
+    .catch(e=>{
+      console.log(e)
+    })
       
   }
   ,[])

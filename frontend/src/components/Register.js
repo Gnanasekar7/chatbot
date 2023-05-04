@@ -46,14 +46,21 @@ const handleSubmit=(e)=>{
 useEffect(()=>{
   if(Object.keys(formErrors).length === 0 && hasError){
       RegisterApi(formValues)
-      .then((response)=>{               
-          if(response.status === 200){
+      .then((response)=>{  
+        console.log(response)           
+          if(response.status === 200 && response.data.message !=='Email already registered'){
               alert("successfully registered")
               navigate('/Luser')
           console.log(response)
         }
+        else if( response.data.message ==='Email already registered'){
+          alert("Email already registered")
+        }
+        else if (response.data.message ==='Passwords do not match'){
+          alert("Passwords do not match ")
+        }
         else{
-          alert("enter credentials as per norms  ")
+          alert("enter credentials as per norms ")
         }
       }               
     ).catch((err)=>{
