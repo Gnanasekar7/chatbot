@@ -340,7 +340,7 @@ function Ladmin() {
     return (
       initialQuestions.map((initial, index) => (
         <div key={index}>
-          <label>Initial Question {index}</label>
+          <label>Initial Question {index+1}</label>
 <input type="text" value={initial.question} onChange={(e) => updateInitialQuestion(index, e.target.value)} />
 <button onClick={() => addFollowUpQuestion(index)}>Add</button>
 {renderFollowUpQuestions(index)}

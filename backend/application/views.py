@@ -183,8 +183,8 @@ def store():
     print(data)
     doc_dict = {"documents": data}
     response = jsonify({'message': 'Valid credendtials'})
-    response.headers.add('Access-Control-Allow-Origin', '  *')
-    response.headers.add('Access-Control-Allow-Headers',  '*')
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', '*')
     print(response)
     db.Question.insert_one(doc_dict)
 
@@ -193,9 +193,24 @@ def store():
     # return data
 @app.route('/userreq',methods=['POST','GET'])
 def get_collection():
-    data = {}
-    for doc in db.Question.find({'_id': False,'documents':True}):
-        data.append(doc.documents[0])
-    print(data)
+    data = []
+    # for doc in db.Question.find({'_id': False,'documents':True}):
+    #     data.append(doc.documents[0])
+    # print(data)
+    cur=db.Question.find()
+    for i in cur:
+      i['_id']=str(i['_id'])
+      data.append(i)
+    # print(data)  
+    # print(list(db.Question.find({'_id': False})))
     return jsonify({'data': data})
 
+@app.route('/history',methods=['POST','GET'])
+def history():
+  data = request.get_json()
+  print(data,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+  response = jsonify({'message': 'Login successful'})
+  # response.headers['Authorization'] = f'Bearer {token}'
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  print(response)
+  return response

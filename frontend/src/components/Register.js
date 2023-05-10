@@ -50,7 +50,7 @@ useEffect(()=>{
         console.log(response)           
           if(response.status === 200 && response.data.message !=='Email already registered'){
               alert("successfully registered")
-              navigate('/Luser')
+              navigate('/login')
           console.log(response)
         }
         else if( response.data.message ==='Email already registered'){

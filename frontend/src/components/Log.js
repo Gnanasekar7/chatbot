@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from 'react'
 import { LogApi } from '../services/LogApi'
-
+import axios from "axios"
 import { useNavigate } from 'react-router-dom'
 function Log() {
 
@@ -13,16 +13,16 @@ function Log() {
   {      
     const {name,value}=e.target
     setFormValues({...formValues, [name] :value})
-    console.log(formValues,"usestar")
+    console.log(formValues.email,"usestar")
   }
   const validate = (value)=>{
     const errors={}
     
     if(!value.email){
-        errors.fname="email is required"
+        errors.email="email is required"
     }
     if(!value.pass){
-        errors.lname="password is required"
+        errors.password="password is required"
     }
     return errors
 }
@@ -37,18 +37,16 @@ const handleSubmit=(e)=>{
       LogApi(formValues)
       .then((res)=>
       {
-       
-        console.log(res.headers.get('Authorization'))
-       
+        console.log(res.headers.get('Authorization'))    
         if (res.headers.get('Authorization')) {
           const token = res.headers.get('Authorization');
-          const expirationTime = Date.now() + 15 * 1000; // 1 hour in milliseconds
+          const expirationTime = Date.now() - 7 * 1000; // 1 hour in milliseconds
           localStorage.setItem('token', JSON.stringify({ token, expirationTime }));
         }
         if (localStorage.getItem('token')) {
           const { token, expirationTime } = JSON.parse(localStorage.getItem('token'));
-          if (Date.now() < expirationTime) {
-            navigate('/Luser');
+          if (Date.now() > expirationTime) {
+            navigate('/Luser',{ state: { email: formValues.email } });
           } else {
             localStorage.removeItem('token');
           }
@@ -57,6 +55,10 @@ const handleSubmit=(e)=>{
       
       )
       .catch(e=>console.log(e))
+      // let data={Email:formValues.email}
+      // axios.post("http://127.0.0.1:5000/history",data)
+      // .then(res=>{console.log(res,"history")})
+      // .catch(e=>{console.log(e)})
     }
   },[formErrors])
 
@@ -70,6 +72,7 @@ const handleSubmit=(e)=>{
         <label>Password  </label>
         <input type='password' placeholder='Password' name="pass" value={formValues.pass} onChange={handleChange}></input>
         <input type='submit' value='Submit'  /*onClick={() => window.location.reload(false)}*/></input>
+        {console.log(Date.now())}
         </form>
     </div>
   );
